@@ -1,0 +1,76 @@
+% python.grm
+% ELEC 490/498 Group 22
+% Enhancing SCL Packet Parsing Language (Python Extension)
+
+% Harmehar Singh #:20264461
+% Joel Coghlin #:20228087
+% Omar Badawi #:20200423
+
+% This is the Python Grammar file. It specifies the Python structures
+% that our TXL Parser will encounter. Since Python is interpreted, and not
+% compiled, the structure of the language varies slightly.
+
+% TODO:
+% undefined nonterminals: 
+
+
+% Comments in Python
+comments
+    #
+end comments
+
+% Keywords in Python
+keys 
+    if     elif    else     for
+    while  break   continue return
+    True   False   None     import
+    from   as      def      with
+    del    global  and      or
+    not    is      in       continue
+    return int     break    long
+    float  switch  char     default
+end keys
+
+% Compounds
+compounds
+    ->      <<      >>      <=      >=      ==      !=
+    &&      ||      *=      /=      '%=     +=      -=
+    <<=     >>=     &=      ^=      |=
+end compounds
+
+% Define a python program as "Every line"
+define pyprogram
+    [py_program]
+end define
+
+% define "Every line" as "Functions or declarations"
+define py_program
+    [repeat definition_or_declaration]
+end define
+
+% define "definitions" and "declarations" (note that definitions are functions)
+define definition_or_declaration
+    [function_definition] | [variable_declaration]
+end define
+
+% define a python function. Since Python functions are interpreted based on indentation,
+% it is essential that the function body be surrounded by an [IN] and [EX].
+define function_definition
+    [NL] def [name][arguments]:
+    [IN] [function_body] [EX]
+end define
+
+% define arguments that are contained in a function definition
+% if there are multiple, they must be seperated by commas.
+define arguments
+    (argument | argument "," arguments)
+end define
+
+% define a single argument
+define argument
+    [name]
+end
+
+define function_body
+    []
+end
