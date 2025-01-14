@@ -61,14 +61,19 @@ end define
 % define a python function. Since Python functions are interpreted based on indentation,
 % it is essential that the function body be surrounded by an [IN] and [EX].
 define function_definition
-    [NL] "def" [name][arguments]:
+    [NL] 'def [function_header]':
     [NL] [IN] [py_program] [NL] [EX]
+end define
+
+% a function header could be used in a function_definition, or as a function call.
+define function_header
+    [name]'( [opt arguments] ')
 end define
 
 % define arguments that are contained in a function definition
 % if there are multiple, they must be seperated by commas.
 define arguments
-    '(' [argument] | [argument] ',' [arguments] ')'
+    [argument] | [argument] ', [arguments]
 end define
 
 % define a single argument
@@ -86,24 +91,35 @@ end define
 
 % Define an assignment to a variable. Empty or not.
 define assignment
-    [name] '=' [value] [NL]
-    | [name] '=' 'None' [NL]
-    | [name] '=' '[]' [NL]
-    | [name] '=' '{}' [NL]
-    | [name] '=' '[' [array_content] ']'
-    | [name] '=' '{' [array_content] '}'
+    [name] '= [value] [NL]
+    | [name] '= 'None' [NL]
+    | [name] '= '[] [NL]
+    | [name] '= '{} [NL]
+    | [name] '= '[ [array_content] ']
+    | [name] '= '{ [array_content] '}
 end define
 
+% a value is anything that could be on the right side of a definition
 define value
     [integer] | [stringlit] | [charlit] | [boolean] | [float] | [long]
 end define
 
+% define an integer as at least one digit
 define integer
     [repeat digit+]
 end define
 
+% a digit is any number
 define digit
     [0123456789]
 end define
 
-%
+% a name is simply a stringlit
+define name
+    [stringlit]
+end define
+
+% type casts are used frequently in Python, and will be needed for pretty printing at the end of the program.
+define type_cast
+    'int( [value] ') | 'str( [value] ') | 'float( [value] ')
+end define
