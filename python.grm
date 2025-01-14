@@ -99,9 +99,57 @@ define assignment
     | [name] '= '{ [array_content] '}
 end define
 
+% control statements add complexity to the grammar, but are going to be essential for pretty printing the packets
+define control_statment
+      [control_flow_statement]
+    | [for_loop_header]
+    | [if_statement_header]
+    | [else_statement_header]
+    | [while_loop_header]
+    | [elif_statement_header]
+end define
+
+% simple execution control statements that 
+define control_flow_statement
+    'continue [NL] | 'break [NL] | 'pass [NL]
+end define
+
+% In python, there are a few ways to write for-loop conditions. so loop_value could be a few things (see below)
+define for_loop_header
+    'for [name] 'in [loop_value] ':
+end define
+
+% loops can traverse based on a counter, or in for-each loops, repeat using each value in a list
+define loop_value
+    'range( [value]') | [name]
+end define
+
+% if statements can be written in a couple ways as well.
+define if_statement_header
+    'if [condition]': [NL] [IN] [if_body] 
+    | 'if [condition] [py_program] 'else [pyprogram]
+    | [value]'if [condition] 'else [value]
+end define
+
+%conditions will decide if loops run/stop or not. they can be in the form of a comparison, or a boolean.
+define condition
+    [value][conditional_operator][value]
+    | [name]
+end define
+
+define conditional_operator
+    '< | '> | '== | '!= | '<= | '>=
+end define 
+
+define if_body
+    [py_program][NL]
+    'else: [NL]
+    [IN][py_program][EX]
+end define
+
 % a value is anything that could be on the right side of a definition
 define value
-    [integer] | [stringlit] | [charlit] | [boolean] | [float] | [long]
+    [integer] | [stringlit] | [charlit] | [boolean] | [float]
 end define
 
 % define an integer as at least one digit
@@ -122,4 +170,14 @@ end define
 % type casts are used frequently in Python, and will be needed for pretty printing at the end of the program.
 define type_cast
     'int( [value] ') | 'str( [value] ') | 'float( [value] ')
+end define
+
+% boolean values are case sensitive in Python
+define boolean
+    'True | 'False
+end define
+
+% all the parser needs to know is that floats are two integers seperated by a decimal point
+define float
+    [integer] '. [integer]
 end define
