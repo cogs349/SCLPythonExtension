@@ -11,8 +11,8 @@
 % compiled, the structure of the language varies slightly. Indentation is very important
 
 % TODO:
-% undefined nonterminals (Jan. 19th 4:36)
-% - array_contents
+% undefined nonterminals: None at the moment (Jan. 19th 4:56pm)
+
 
 
 % =============== Lexical Properties of Python ===============
@@ -88,18 +88,22 @@ define declaration
       [assignment]
     | [control_statment]
     | [import_statement]
-    | [expression_statement]
+    | [function_call]
 end define
 
 % Define an assignment to a variable. Empty or not.
 define assignment
     [name] '= [value] [NL]
-    | [name] '= [expression_statement][NL]
+    | [name] '= [function_call][NL]
     | [name] '= 'None' [NL]
     | [name] '= '[] [NL]
     | [name] '= '{} [NL]
-    | [name] '= '[ [array_content] ']
-    | [name] '= '{ [array_content] '}
+    | [name] '= '[ [array_content] '] %list
+    | [name] '= '{ [array_content] '} %tuple
+end define
+
+define array_content
+    [value] | [list_item]', [value]
 end define
 
 % control statements add complexity to the grammar, but are going to be essential for pretty printing the packets
@@ -136,6 +140,31 @@ define renaming_import
 end define
 
 % ========================================================
+
+% ========== expression statements in Python =============
+
+% functions can be called without args, or have args passed to them. Certain methods also require a '.' seperate
+% the parent function and a method name. We also choose to treat print statements different because they are simple
+% to identify and parse.
+define function_call
+    [call_with_parameters] | [call_no_parameters] | [call_with_method] | [call_print_function]
+end define
+
+define call_print_function
+    'print( [stringlit] ') [NL]
+end call_print_function
+
+define call_with_parameters
+    [name]'( [arguments]') [NL]
+end call_with_parameters
+
+define call_no_parameters
+    [name]'() [NL]
+end call_no_parameters
+
+define call_with_method
+    [name]'. [name]'()
+end call_with_method
 
 % simple execution control statements that 
 define control_flow_statement
