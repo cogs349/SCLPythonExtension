@@ -11,7 +11,9 @@
 % compiled, the structure of the language varies slightly. Indentation is very important
 
 % TODO:
-% undefined nonterminals: 
+% undefined nonterminals (Jan. 19th 4:36)
+% - array_contents
+
 
 % =============== Lexical Properties of Python ===============
 % Comments in Python
@@ -23,10 +25,10 @@ end comments
 keys 
     if     elif    else     for
     while  break   continue return
-    True   False   None     import
+    True   False   None     'import
     from   as      def      with
     del    global  and      or
-    not    is      in       continue
+    'not   is      in       continue
     return int     break    long
     float  switch  char     default
 end keys
@@ -92,6 +94,7 @@ end define
 % Define an assignment to a variable. Empty or not.
 define assignment
     [name] '= [value] [NL]
+    | [name] '= [expression_statement][NL]
     | [name] '= 'None' [NL]
     | [name] '= '[] [NL]
     | [name] '= '{} [NL]
