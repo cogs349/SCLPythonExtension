@@ -6,9 +6,9 @@
 % Joel Coghlin #:20228087
 % Omar Badawi #:20200423
 
-% This is the Python Grammar file. It specifies the Python structures
+% This is the Python Grammar file. It specifies the Python sequences
 % that our TXL Parser will encounter. Since Python is interpreted, and not
-% compiled, the structure of the language varies slightly.
+% compiled, the structure of the language varies slightly. Indentation is very important
 
 % TODO:
 % undefined nonterminals: 
@@ -109,6 +109,31 @@ define control_statment
     | [elif_statement_header]
 end define
 
+%============= import statements in python ==============
+
+% import statements have three implementations in python. Importing an entire library is very simple.
+% however, imports can be specified from one file, in the form of:
+% "from file_name import function_name"
+% they can also be renamed for simplicity in the current file.
+% *see below*
+define import_statement
+    [import_using_from] | [basic_import] | [renaming_import]
+end define
+
+define basic_import
+    'import [name][NL]
+end define
+
+define import_using_from
+    'from [name] 'import [name][NL]
+end define
+
+define renaming_import
+    'import [name] 'as [name][NL]
+end define
+
+% ========================================================
+
 % simple execution control statements that 
 define control_flow_statement
     'continue [NL] | 'break [NL] | 'pass [NL]
@@ -116,7 +141,7 @@ end define
 
 % In python, there are a few ways to write for-loop conditions. so loop_value could be a few things (see below)
 define for_loop_header
-    'for [name] 'in [loop_value] ':
+    'for [name] 'in [loop_value] ': [NL]
 end define
 
 % loops can traverse based on a counter, or in for-each loops, repeat using each value in a list
@@ -127,24 +152,41 @@ end define
 % if statements can be written in a couple ways as well.
 define if_statement_header
     'if [condition]': [NL] [IN] [if_body] 
-    | 'if [condition] [py_program] 'else [pyprogram]
-    | [value]'if [condition] 'else [value]
+    | 'if [condition] [declaration] 'else [declaration][NL]
+    | [value]'if [condition] 'else [value][NL]
 end define
 
-%conditions will decide if loops run/stop or not. they can be in the form of a comparison, or a boolean.
+% else statements
+define else_statement_header
+    'else: [NL][IN]
+end define
+
+% for clarity, define elif statements on their own.
+define elif_statement_header
+    'elif: [NL]
+end define
+
+% while loops are similar to for loops, but dont require a list or tuple to be specified
+define while_loop_header
+    'while [condition]': [NL]
+end define
+
+% conditions will decide if loops run/stop or not. they can be in the form of a comparison, or a boolean.
 define condition
     [value][conditional_operator][value]
-    | [name]
+    | [loop_value]
 end define
 
+% simply any boolean loop conditional operator.
 define conditional_operator
     '< | '> | '== | '!= | '<= | '>=
 end define 
 
+% specify that an if_body must have an exdent at the conclusion of the if statement body.
+% in the case that nested if statements occur, the parser will catch the appropriate 
+% number of extents to return to the left-most indentation before the statements.
 define if_body
-    [py_program][NL]
-    'else: [NL]
-    [IN][py_program][EX]
+    [py_program][NL][EX]  
 end define
 
 % a value is anything that could be on the right side of a definition
