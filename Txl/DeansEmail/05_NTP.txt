@@ -1,0 +1,20 @@
+NTP DEFINITIONS ::= BEGIN
+    EXPORTS PDU_NTP;
+    [PDU_NTP ^ PDU] @ CONST 0 48 ::= SEQUENCE {
+        [flags_PDU_NTP ^ flags] @ CONST 0 1 INTEGER (SIZE 1 BYTES),
+        [peerStratum_PDU_NTP ^ peerStratum] @ CONST 1 1 INTEGER (SIZE 1 BYTES),
+        [peerInterval_PDU_NTP ^ peerInterval] @ CONST 2 1 INTEGER (SIZE 1 BYTES),
+        [peerPrecision_PDU_NTP ^ peerPrecision] @ CONST 3 1 INTEGER (SIZE 1 BYTES),
+        [rootDelay_PDU_NTP ^ rootDelay] @ CONST 4 4 INTEGER (SIZE 4 BYTES),
+        [rootDispersion_PDU_NTP ^ rootDispersion] @ CONST 8 4 INTEGER (SIZE 4 BYTES),
+        [referenceId_PDU_NTP ^ referenceId] @ CONST 12 4 INTEGER (SIZE 4 BYTES),
+        [referenceTS_PDU_NTP ^ referenceTS] @ CONST 16 8 INTEGER (SIZE 8 BYTES),
+        [originTS_PDU_NTP ^ originTS] @ CONST 24 8 INTEGER (SIZE 8 BYTES),
+        [recieveTS_PDU_NTP ^ recieveTS] @ CONST 32 8 INTEGER (SIZE 8 BYTES),
+        [transmitTS_PDU_NTP ^ transmitTS] @ CONST 40 8 INTEGER (SIZE 8 BYTES)
+    } (ENCODED BY CUSTOM)
+    < transfer >
+        Back {([flags_PDU_NTP ^ flags]& 56) == 32}
+    </ transfer >
+
+END

@@ -1,0 +1,18 @@
+ARP DEFINITIONS ::= BEGIN
+    EXPORTS PDU_ARP;
+    [PDU_ARP ^ PDU] @ CONST 0 28 ::= SEQUENCE {
+        [hwType_PDU_ARP ^ hwType] @ CONST 0 2 INTEGER (SIZE 2 BYTES),
+        [protocolType_PDU_ARP ^ protocolType] @ CONST 2 2 INTEGER (SIZE 2 BYTES),
+        [hwSize_PDU_ARP ^ hwSize] @ CONST 4 1 INTEGER (SIZE 1 BYTES),
+        [protocolSize_PDU_ARP ^ protocolSize] @ CONST 5 1 INTEGER (SIZE 1 BYTES),
+        [opcode_PDU_ARP ^ opcode] @ CONST 6 2 INTEGER (SIZE 2 BYTES),
+        [senderMAC_PDU_ARP ^ senderMAC] @ CONST 8 6 OCTET STRING (SIZE 6 BYTES),
+        [senderIP_PDU_ARP ^ senderIP] @ CONST 14 4 INTEGER (SIZE 4 BYTES),
+        [targetMAC_PDU_ARP ^ targetMAC] @ CONST 18 6 OCTET STRING (SIZE 6 BYTES),
+        [targetIP_PDU_ARP ^ targetIP] @ CONST 24 4 INTEGER (SIZE 4 BYTES)
+    } (ENCODED BY CUSTOM)
+    < transfer >
+        Callback
+    </ transfer >
+
+END

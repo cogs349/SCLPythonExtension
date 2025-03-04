@@ -1,0 +1,294 @@
+DNS DEFINITIONS ::= BEGIN
+    EXPORTS PDU_DNS;
+    [PDU_DNS ^ PDU] @ VAR ::= SEQUENCE {
+        [transactionId_PDU_DNS ^ transactionId] @ CONST 0 2 INTEGER (SIZE 2 BYTES),
+        [flags_PDU_DNS ^ flags] @ CONST 2 2 OCTET STRING (SIZE 2 BYTES),
+        [numQuestion_PDU_DNS ^ numQuestion] @ CONST 4 2 INTEGER (SIZE 2 BYTES),
+        [numAnswer_PDU_DNS ^ numAnswer] @ CONST 6 2 INTEGER (SIZE 2 BYTES),
+        [numAuthority_PDU_DNS ^ numAuthority] @ CONST 8 2 INTEGER (SIZE 2 BYTES),
+        [numAdditional_PDU_DNS ^ numAdditional] @ CONST 10 2 INTEGER (SIZE 2 BYTES),
+        [question_PDU_DNS ^ question] @ VAR SET OF Query_DNS (SIZE CONSTRAINED),
+        [answer_PDU_DNS ^ answer] @ VAR SET OF ResourceRecord_DNS (SIZE CONSTRAINED),
+        [authority_PDU_DNS ^ authority] @ VAR SET OF ResourceRecord_DNS (SIZE CONSTRAINED),
+        [additional_PDU_DNS ^ additional] @ VAR SET OF ResourceRecord_DNS (SIZE CONSTRAINED)
+    } (ENCODED BY CUSTOM)
+    < transfer >
+        Callback @ PDU_DNS additional
+        Back {SRCPORT == 53 || DSTPORT == 53}
+        Forward {CARDINALITY ([question_PDU_DNS ^ question]) == [numQuestion_PDU_DNS ^ numQuestion]}
+        Forward {CARDINALITY ([answer_PDU_DNS ^ answer]) == [numAnswer_PDU_DNS ^ numAnswer]}
+        Forward {CARDINALITY ([authority_PDU_DNS ^ authority]) == [numAuthority_PDU_DNS ^ numAuthority]}
+        Forward {CARDINALITY ([additional_PDU_DNS ^ additional]) == [numAdditional_PDU_DNS ^ numAdditional]}
+        All Bytes Used
+    </ transfer >
+
+    [Query_DNS ^ Query] @ VAR ::= SEQUENCE {
+        [name_Query_DNS ^ name] @ VAR Domain_DNS (SIZE DEFINED),
+        [type_Query_DNS ^ type] @ VAR 2 INTEGER (SIZE 2 BYTES),
+        [class_Query_DNS ^ class] @ VAR 2 INTEGER (SIZE 2 BYTES)
+    }
+
+    [ResourceRecord_DNS ^ ResourceRecord] @ VAR ::= (ResourceRecordA_DNS | ResourceRecordNS_DNS | ResourceRecordCNAME_DNS | ResourceRecordSOA_DNS |
+      ResourceRecordPTR_DNS | ResourceRecordMX_DNS | ResourceRecordTXT_DNS | ResourceRecordAAAA_DNS | ResourceRecordOPT_DNS | ResourceRecordDS_DNS |
+      ResourceRecordKEY_DNS | ResourceRecordRRSIG_DNS | ResourceRecordNSEC3_DNS)
+    < transfer >
+        Callback ^ PDU_DNS additional
+    </ transfer >
+
+    [ResourceRecordA_DNS ^ ResourceRecordA] @ VAR ::= SEQUENCE {
+        [name_ResourceRecordA_DNS ^ name] @ VAR Domain_DNS (SIZE DEFINED),
+        [type_ResourceRecordA_DNS ^ type] @ VAR 2 INTEGER (SIZE 2 BYTES),
+        [class_ResourceRecordA_DNS ^ class] @ VAR 2 INTEGER (SIZE 2 BYTES),
+        [timeToLive_ResourceRecordA_DNS ^ timeToLive] @ VAR 4 INTEGER (SIZE 4 BYTES),
+        [dataLength_ResourceRecordA_DNS ^ dataLength] @ VAR 2 INTEGER (SIZE 2 BYTES),
+        [address_ResourceRecordA_DNS ^ address] @ VAR 4 OCTET STRING (SIZE 4 BYTES)
+    }
+    < transfer >
+        Back {[type_ResourceRecordA_DNS ^ type] == 1}
+        Callback PDU_DNS additional
+    </ transfer >
+
+    [ResourceRecordNS_DNS ^ ResourceRecordNS] @ VAR ::= SEQUENCE {
+        [name_ResourceRecordNS_DNS ^ name] @ VAR Domain_DNS (SIZE DEFINED),
+        [type_ResourceRecordNS_DNS ^ type] @ VAR 2 INTEGER (SIZE 2 BYTES),
+        [class_ResourceRecordNS_DNS ^ class] @ VAR 2 INTEGER (SIZE 2 BYTES),
+        [timeToLive_ResourceRecordNS_DNS ^ timeToLive] @ VAR 4 INTEGER (SIZE 4 BYTES),
+        [dataLength_ResourceRecordNS_DNS ^ dataLength] @ VAR 2 INTEGER (SIZE 2 BYTES),
+        [nameServer_ResourceRecordNS_DNS ^ nameServer] @ VAR Domain_DNS (SIZE DEFINED)
+    }
+    < transfer >
+        Back {[type_ResourceRecordNS_DNS ^ type] == 2}
+        Callback PDU_DNS additional
+    </ transfer >
+
+    [ResourceRecordCNAME_DNS ^ ResourceRecordCNAME] @ VAR ::= SEQUENCE {
+        [name_ResourceRecordCNAME_DNS ^ name] @ VAR Domain_DNS (SIZE DEFINED),
+        [type_ResourceRecordCNAME_DNS ^ type] @ VAR 2 INTEGER (SIZE 2 BYTES),
+        [class_ResourceRecordCNAME_DNS ^ class] @ VAR 2 INTEGER (SIZE 2 BYTES),
+        [timeToLive_ResourceRecordCNAME_DNS ^ timeToLive] @ VAR 4 INTEGER (SIZE 4 BYTES),
+        [dataLength_ResourceRecordCNAME_DNS ^ dataLength] @ VAR 2 INTEGER (SIZE 2 BYTES),
+        [cname_ResourceRecordCNAME_DNS ^ cname] @ VAR Domain_DNS (SIZE DEFINED)
+    }
+    < transfer >
+        Back {[type_ResourceRecordCNAME_DNS ^ type] == 5}
+        Callback PDU_DNS additional
+    </ transfer >
+
+    [ResourceRecordSOA_DNS ^ ResourceRecordSOA] @ VAR ::= SEQUENCE {
+        [name_ResourceRecordSOA_DNS ^ name] @ VAR Domain_DNS (SIZE DEFINED),
+        [type_ResourceRecordSOA_DNS ^ type] @ VAR 2 INTEGER (SIZE 2 BYTES),
+        [class_ResourceRecordSOA_DNS ^ class] @ VAR 2 INTEGER (SIZE 2 BYTES),
+        [timeToLive_ResourceRecordSOA_DNS ^ timeToLive] @ VAR 4 INTEGER (SIZE 4 BYTES),
+        [dataLength_ResourceRecordSOA_DNS ^ dataLength] @ VAR 2 INTEGER (SIZE 2 BYTES),
+        [primaryNameServer_ResourceRecordSOA_DNS ^ primaryNameServer] @ VAR Domain_DNS (SIZE DEFINED),
+        [reponsibleAuthority_ResourceRecordSOA_DNS ^ reponsibleAuthority] @ VAR Domain_DNS (SIZE DEFINED),
+        [serialNumber_ResourceRecordSOA_DNS ^ serialNumber] @ VAR 4 INTEGER (SIZE 4 BYTES),
+        [refreshInterval_ResourceRecordSOA_DNS ^ refreshInterval] @ VAR 4 INTEGER (SIZE 4 BYTES),
+        [retryInterval_ResourceRecordSOA_DNS ^ retryInterval] @ VAR 4 INTEGER (SIZE 4 BYTES),
+        [expireLimit_ResourceRecordSOA_DNS ^ expireLimit] @ VAR 4 INTEGER (SIZE 4 BYTES),
+        [minimumTTL_ResourceRecordSOA_DNS ^ minimumTTL] @ VAR 4 INTEGER (SIZE 4 BYTES)
+    }
+    < transfer >
+        Back {[type_ResourceRecordSOA_DNS ^ type] == 6}
+        Callback PDU_DNS additional
+    </ transfer >
+
+    [ResourceRecordPTR_DNS ^ ResourceRecordPTR] @ VAR ::= SEQUENCE {
+        [name_ResourceRecordPTR_DNS ^ name] @ VAR Domain_DNS (SIZE DEFINED),
+        [type_ResourceRecordPTR_DNS ^ type] @ VAR 2 INTEGER (SIZE 2 BYTES),
+        [class_ResourceRecordPTR_DNS ^ class] @ VAR 2 INTEGER (SIZE 2 BYTES),
+        [timeToLive_ResourceRecordPTR_DNS ^ timeToLive] @ VAR 4 INTEGER (SIZE 4 BYTES),
+        [dataLength_ResourceRecordPTR_DNS ^ dataLength] @ VAR 2 INTEGER (SIZE 2 BYTES),
+        [domainName_ResourceRecordPTR_DNS ^ domainName] @ VAR Domain_DNS (SIZE DEFINED)
+    }
+    < transfer >
+        Back {[type_ResourceRecordPTR_DNS ^ type] == 12}
+        Callback PDU_DNS additional
+    </ transfer >
+
+    [ResourceRecordMX_DNS ^ ResourceRecordMX] @ VAR ::= SEQUENCE {
+        [name_ResourceRecordMX_DNS ^ name] @ VAR Domain_DNS (SIZE DEFINED),
+        [type_ResourceRecordMX_DNS ^ type] @ VAR 2 INTEGER (SIZE 2 BYTES),
+        [class_ResourceRecordMX_DNS ^ class] @ VAR 2 INTEGER (SIZE 2 BYTES),
+        [timeToLive_ResourceRecordMX_DNS ^ timeToLive] @ VAR 4 INTEGER (SIZE 4 BYTES),
+        [dataLength_ResourceRecordMX_DNS ^ dataLength] @ VAR 2 INTEGER (SIZE 2 BYTES),
+        [prefernece_ResourceRecordMX_DNS ^ prefernece] @ VAR 2 INTEGER (SIZE 2 BYTES),
+        [mailExchange_ResourceRecordMX_DNS ^ mailExchange] @ VAR Domain_DNS (SIZE DEFINED)
+    }
+    < transfer >
+        Back {[type_ResourceRecordMX_DNS ^ type] == 15}
+        Callback PDU_DNS additional
+    </ transfer >
+
+    [ResourceRecordTXT_DNS ^ ResourceRecordTXT] @ VAR ::= SEQUENCE {
+        [name_ResourceRecordTXT_DNS ^ name] @ VAR Domain_DNS (SIZE DEFINED),
+        [type_ResourceRecordTXT_DNS ^ type] @ VAR 2 INTEGER (SIZE 2 BYTES),
+        [class_ResourceRecordTXT_DNS ^ class] @ VAR 2 INTEGER (SIZE 2 BYTES),
+        [timeToLive_ResourceRecordTXT_DNS ^ timeToLive] @ VAR 4 INTEGER (SIZE 4 BYTES),
+        [dataLength_ResourceRecordTXT_DNS ^ dataLength] @ VAR 2 INTEGER (SIZE 2 BYTES),
+        [text_ResourceRecordTXT_DNS ^ text] @ VAR OCTET STRING (SIZE CONSTRAINED)
+    }
+    < transfer >
+        Back {[type_ResourceRecordTXT_DNS ^ type] == 16}
+        Forward {LENGTH ([text_ResourceRecordTXT_DNS ^ text]) == [dataLength_ResourceRecordTXT_DNS ^ dataLength]}
+        Callback PDU_DNS additional
+    </ transfer >
+
+    [ResourceRecordAAAA_DNS ^ ResourceRecordAAAA] @ VAR ::= SEQUENCE {
+        [name_ResourceRecordAAAA_DNS ^ name] @ VAR Domain_DNS (SIZE DEFINED),
+        [type_ResourceRecordAAAA_DNS ^ type] @ VAR 2 INTEGER (SIZE 2 BYTES),
+        [class_ResourceRecordAAAA_DNS ^ class] @ VAR 2 INTEGER (SIZE 2 BYTES),
+        [timeToLive_ResourceRecordAAAA_DNS ^ timeToLive] @ VAR 4 INTEGER (SIZE 4 BYTES),
+        [dataLength_ResourceRecordAAAA_DNS ^ dataLength] @ VAR 2 INTEGER (SIZE 2 BYTES),
+        [address_ResourceRecordAAAA_DNS ^ address] @ VAR 16 OCTET STRING (SIZE 16 BYTES)
+    }
+    < transfer >
+        Back {[type_ResourceRecordAAAA_DNS ^ type] == 28}
+        Callback PDU_DNS additional
+    </ transfer >
+
+    [ResourceRecordOPT_DNS ^ ResourceRecordOPT] @ VAR ::= SEQUENCE {
+        [name_ResourceRecordOPT_DNS ^ name] @ VAR Domain_DNS (SIZE DEFINED),
+        [type_ResourceRecordOPT_DNS ^ type] @ VAR 2 INTEGER (SIZE 2 BYTES),
+        [udpPayloadSize_ResourceRecordOPT_DNS ^ udpPayloadSize] @ VAR 2 INTEGER (SIZE 2 BYTES),
+        [higherBitsInExtdRcode_ResourceRecordOPT_DNS ^ higherBitsInExtdRcode] @ VAR 1 INTEGER (SIZE 1 BYTES),
+        [EDNS0Version_ResourceRecordOPT_DNS ^ EDNS0Version] @ VAR 1 INTEGER (SIZE 1 BYTES),
+        [z_ResourceRecordOPT_DNS ^ z] @ VAR 2 INTEGER (SIZE 2 BYTES),
+        [dataLength_ResourceRecordOPT_DNS ^ dataLength] @ VAR 2 INTEGER (SIZE 2 BYTES)
+    }
+    < transfer >
+        Back {[type_ResourceRecordOPT_DNS ^ type] == 41}
+        Callback PDU_DNS additional
+    </ transfer >
+
+    [ResourceRecordDS_DNS ^ ResourceRecordDS] @ VAR ::= SEQUENCE {
+        [name_ResourceRecordDS_DNS ^ name] @ VAR Domain_DNS (SIZE DEFINED),
+        [type_ResourceRecordDS_DNS ^ type] @ VAR 2 INTEGER (SIZE 2 BYTES),
+        [class_ResourceRecordDS_DNS ^ class] @ VAR 2 INTEGER (SIZE 2 BYTES),
+        [timeToLive_ResourceRecordDS_DNS ^ timeToLive] @ VAR 4 INTEGER (SIZE 4 BYTES),
+        [dataLength_ResourceRecordDS_DNS ^ dataLength] @ VAR 2 INTEGER (SIZE 2 BYTES),
+        [keyid_ResourceRecordDS_DNS ^ keyid] @ VAR 2 INTEGER (SIZE 2 BYTES),
+        [alg_ResourceRecordDS_DNS ^ alg] @ VAR 1 INTEGER (SIZE 1 BYTES),
+        [digestType_ResourceRecordDS_DNS ^ digestType] @ VAR 1 INTEGER (SIZE 1 BYTES),
+        [digest_ResourceRecordDS_DNS ^ digest] @ VAR 32 OCTET STRING (SIZE 32 BYTES)
+    }
+    < transfer >
+        Back {[type_ResourceRecordDS_DNS ^ type] == 43}
+        Callback PDU_DNS additional
+    </ transfer >
+
+    [ResourceRecordRRSIG_DNS ^ ResourceRecordRRSIG] @ VAR ::= SEQUENCE {
+        [name_ResourceRecordRRSIG_DNS ^ name] @ VAR Domain_DNS (SIZE DEFINED),
+        [type_ResourceRecordRRSIG_DNS ^ type] @ VAR 2 INTEGER (SIZE 2 BYTES),
+        [class_ResourceRecordRRSIG_DNS ^ class] @ VAR 2 INTEGER (SIZE 2 BYTES),
+        [timeToLive_ResourceRecordRRSIG_DNS ^ timeToLive] @ VAR 4 INTEGER (SIZE 4 BYTES),
+        [dataLength_ResourceRecordRRSIG_DNS ^ dataLength] @ VAR 2 INTEGER (SIZE 2 BYTES),
+        [typeCov_ResourceRecordRRSIG_DNS ^ typeCov] @ VAR 2 @ POS INTEGER (SIZE 2 BYTES),
+        [alg_ResourceRecordRRSIG_DNS ^ alg] @ VAR 1 INTEGER (SIZE 1 BYTES),
+        [labels_ResourceRecordRRSIG_DNS ^ labels] @ VAR 1 INTEGER (SIZE 1 BYTES),
+        [OrigtimeToLive_ResourceRecordRRSIG_DNS ^ OrigtimeToLive] @ VAR 4 INTEGER (SIZE 4 BYTES),
+        [SigExp_ResourceRecordRRSIG_DNS ^ SigExp] @ VAR 4 INTEGER (SIZE 4 BYTES),
+        [SigInception_ResourceRecordRRSIG_DNS ^ SigInception] @ VAR 4 INTEGER (SIZE 4 BYTES),
+        [keyTag_ResourceRecordRRSIG_DNS ^ keyTag] @ VAR 2 INTEGER (SIZE 2 BYTES),
+        [signName_ResourceRecordRRSIG_DNS ^ signName] @ VAR Domain_DNS (SIZE DEFINED),
+        [signature_ResourceRecordRRSIG_DNS ^ signature] @ VAR @ POS OCTET STRING (SIZE CONSTRAINED)
+    }
+    < transfer >
+        Back {[type_ResourceRecordRRSIG_DNS ^ type] == 46}
+        Forward {LENGTH ([signature_ResourceRecordRRSIG_DNS ^ signature]) == [dataLength_ResourceRecordRRSIG_DNS ^ dataLength] - (POS ([
+          signature_ResourceRecordRRSIG_DNS ^ signature]) - POS ([typeCov_ResourceRecordRRSIG_DNS ^ typeCov]))}
+        Callback PDU_DNS additional
+    </ transfer >
+
+    [ResourceRecordKEY_DNS ^ ResourceRecordKEY] @ VAR ::= SEQUENCE {
+        [name_ResourceRecordKEY_DNS ^ name] @ VAR Domain_DNS (SIZE DEFINED),
+        [type_ResourceRecordKEY_DNS ^ type] @ VAR 2 INTEGER (SIZE 2 BYTES),
+        [class_ResourceRecordKEY_DNS ^ class] @ VAR 2 INTEGER (SIZE 2 BYTES),
+        [ttl_ResourceRecordKEY_DNS ^ ttl] @ VAR 4 INTEGER (SIZE 4 BYTES),
+        [dataLength_ResourceRecordKEY_DNS ^ dataLength] @ VAR 2 INTEGER (SIZE 2 BYTES),
+        [flags_ResourceRecordKEY_DNS ^ flags] @ VAR 2 @ POS INTEGER (SIZE 2 BYTES),
+        [protocol_ResourceRecordKEY_DNS ^ protocol] @ VAR 1 INTEGER (SIZE 1 BYTES),
+        [algorithm_ResourceRecordKEY_DNS ^ algorithm] @ VAR 1 INTEGER (SIZE 1 BYTES),
+        [key_ResourceRecordKEY_DNS ^ key] @ VAR @ POS OCTET STRING (SIZE CONSTRAINED)
+    }
+    < transfer >
+        Back {[type_ResourceRecordKEY_DNS ^ type] == 48}
+        Forward {LENGTH ([key_ResourceRecordKEY_DNS ^ key]) == [dataLength_ResourceRecordKEY_DNS ^ dataLength] - (POS ([key_ResourceRecordKEY_DNS ^ key]) - POS
+          ([flags_ResourceRecordKEY_DNS ^ flags]))}
+        Callback PDU_DNS additional
+    </ transfer >
+
+    [ResourceRecordNSEC3_DNS ^ ResourceRecordNSEC3] @ VAR ::= SEQUENCE {
+        [name_ResourceRecordNSEC3_DNS ^ name] @ VAR Domain_DNS (SIZE DEFINED),
+        [type_ResourceRecordNSEC3_DNS ^ type] @ VAR 2 INTEGER (SIZE 2 BYTES),
+        [class_ResourceRecordNSEC3_DNS ^ class] @ VAR 2 INTEGER (SIZE 2 BYTES),
+        [timeToLive_ResourceRecordNSEC3_DNS ^ timeToLive] @ VAR 4 INTEGER (SIZE 4 BYTES),
+        [dataLength_ResourceRecordNSEC3_DNS ^ dataLength] @ VAR 2 INTEGER (SIZE 2 BYTES),
+        [alg_ResourceRecordNSEC3_DNS ^ alg] @ VAR 1 INTEGER (SIZE 1 BYTES),
+        [flags_ResourceRecordNSEC3_DNS ^ flags] @ VAR 1 INTEGER (SIZE 1 BYTES),
+        [iterations_ResourceRecordNSEC3_DNS ^ iterations] @ VAR 2 INTEGER (SIZE 2 BYTES),
+        [saltLength_ResourceRecordNSEC3_DNS ^ saltLength] @ VAR 1 INTEGER (SIZE 1 BYTES),
+        [hashlength_ResourceRecordNSEC3_DNS ^ hashlength] @ VAR 1 INTEGER (SIZE 1 BYTES),
+        [nexthash_ResourceRecordNSEC3_DNS ^ nexthash] @ VAR OCTET STRING (SIZE CONSTRAINED),
+        [typeMap_ResourceRecordNSEC3_DNS ^ typeMap] @ VAR Map_DNS (SIZE DEFINED)
+    }
+    < transfer >
+        Back {[type_ResourceRecordNSEC3_DNS ^ type] == 50}
+        Forward {LENGTH ([nexthash_ResourceRecordNSEC3_DNS ^ nexthash]) == [hashlength_ResourceRecordNSEC3_DNS ^ hashlength]}
+        Callback PDU_DNS additional
+    </ transfer >
+
+    [Map_DNS ^ Map] @ VAR ::= SEQUENCE {
+        [mapNum_Map_DNS ^ mapNum] @ CONST 0 1 INTEGER (SIZE 1 BYTES),
+        [length_Map_DNS ^ length] @ CONST 1 1 INTEGER (SIZE 1 BYTES),
+        [mapbits_Map_DNS ^ mapbits] @ VAR OCTET STRING (SIZE CONSTRAINED)
+    }
+    < transfer >
+        Forward {LENGTH ([mapbits_Map_DNS ^ mapbits]) == [length_Map_DNS ^ length]}
+    </ transfer >
+
+    [Domain_DNS ^ Domain] @ VAR ::= SEQUENCE {
+        [words_Domain_DNS ^ words] @ VAR SET OF Word_DNS (SIZE CONSTRAINED)
+    }
+    < transfer >
+        Forward {TERMINATE ([words_Domain_DNS ^ words]) == [EndWord_DNS ^ EndWord]}
+    </ transfer >
+
+    [Word_DNS ^ Word] @ VAR ::= (InlineWord_DNS | EndWord_DNS)
+
+    [EndWord_DNS ^ EndWord] @ VAR ::= (ReferenceWord_DNS @ LL 0 1 193, 192 | NullWord_DNS @ LL 0 1 0)
+    < lookahead >
+        {0 1
+            0 @ NullWord_DNS
+            192 @ ReferenceWord_DNS
+            193 @ ReferenceWord_DNS
+        }
+
+    </ lookahead >
+
+    [InlineWord_DNS ^ InlineWord] @ VAR ::= SEQUENCE {
+        [length_InlineWord_DNS ^ length] @ CONST 0 1 INTEGER (SIZE 1 BYTES) SAVEPOS,
+        [letters_InlineWord_DNS ^ letters] @ VAR OCTET STRING (SIZE CONSTRAINED)
+    }
+    < transfer >
+        Forward {LENGTH ([letters_InlineWord_DNS ^ letters]) == [length_InlineWord_DNS ^ length]}
+        Back {[length_InlineWord_DNS ^ length] != 0}
+        Back {[length_InlineWord_DNS ^ length] != 192 && [length_InlineWord_DNS ^ length] != 193}
+    </ transfer >
+
+    [ReferenceWord_DNS ^ ReferenceWord] @ LL 0 1 193, 192 @ CONST 0 2 ::= SEQUENCE {
+        [header_ReferenceWord_DNS ^ header] @ CONST 0 1 INTEGER (SIZE 1 BYTES),
+        [reference_ReferenceWord_DNS ^ reference] @ CONST 1 1 INTEGER (SIZE 1 BYTES)
+    }
+    < transfer >
+        Back {[header_ReferenceWord_DNS ^ header] == 192 || [header_ReferenceWord_DNS ^ header] == 193}
+    </ transfer >
+
+    [NullWord_DNS ^ NullWord] @ LL 0 1 0 @ CONST 0 1 ::= SEQUENCE {
+        [header_NullWord_DNS ^ header] @ CONST 0 1 INTEGER (SIZE 1 BYTES)
+    }
+    < transfer >
+        Back {[header_NullWord_DNS ^ header] == 0}
+    </ transfer >
+
+END
