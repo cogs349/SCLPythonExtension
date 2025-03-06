@@ -1,0 +1,1 @@
+[first_PDU_ARP ^ first] @ CONST 8 6 OCTET STRING (SIZE 13 BYTES)
